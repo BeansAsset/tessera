@@ -94,18 +94,21 @@ class Gate:
         return self.now() < self.pairing_until
 
     def start(self, laptop_name):
-        """What the phone's shortcut opens: the page, with a fresh challenge."""
+        """What the phone's shortcut opens: the page, with a fresh challenge.
+        A new query each time makes Safari load the page afresh instead of
+        reusing a tab that has the page open already."""
         with self.lock:
+            page = f"{PAGE}?{secrets.token_hex(4)}"
             name = urllib.parse.quote(laptop_name)
             if self.pairing:
                 c = self._issue("pair")
-                return f"{PAGE}#pair={b64url(c)}&laptop={name}"
+                return f"{page}#pair={b64url(c)}&laptop={name}"
             if not self.devices:
-                return f"{PAGE}#error=" + urllib.parse.quote(
+                return f"{page}#error=" + urllib.parse.quote(
                     "This iPhone isn't paired yet. Open Tessera on your laptop and press Pair.")
             c = self._issue("unlock")
             keys = ",".join(d["id"] for d in self.devices)
-            return f"{PAGE}#c={b64url(c)}&k={keys}&laptop={name}"
+            return f"{page}#c={b64url(c)}&k={keys}&laptop={name}"
 
     def answer(self, text):
         """The phone's reply. Returns a short message for the phone."""

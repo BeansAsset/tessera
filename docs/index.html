@@ -241,6 +241,10 @@ function setup(host) {
 
 // ---- which page is this --------------------------------------------------------------------
 
+// Opened again with new data while this tab was showing (only the part
+// after # changed): start over with it.
+window.addEventListener("hashchange", () => location.reload());
+
 $("unlock-retry").addEventListener("click", unlock);
 $("pair-create").addEventListener("click", pair);
 $("pair-send").addEventListener("click", () => reply(pairAnswer));
