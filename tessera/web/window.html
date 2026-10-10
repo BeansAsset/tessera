@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self' file:; style-src 'self' file:; font-src 'self' file:; img-src 'self' file: data:; connect-src 'none'">
+  <title>Tessera</title>
+  <link rel="stylesheet" href="window.css">
+</head>
+<body>
+  <header>
+    <svg class="mark" viewBox="0 0 56 56" aria-hidden="true">
+      <rect width="56" height="56" rx="14" fill="#1c1b20"/>
+      <path d="M14 15h12v8l-3 3 3 3v12H14z" fill="#f4f2ef" opacity=".9"/>
+      <path d="M42 15H30v8l-3 3 3 3v12h12z" fill="#d6b28c"/>
+    </svg>
+    <div>
+      <h1>Tessera</h1>
+      <p class="sub">Unlock this laptop with Face ID on your iPhone.</p>
+    </div>
+  </header>
+
+  <p id="error" class="banner" hidden></p>
+
+  <!-- the normal view -->
+  <section id="home">
+    <h2>Your iPhones</h2>
+    <ul id="devices"></ul>
+    <p id="empty" class="empty">No iPhone paired yet.</p>
+    <button id="pair" class="btn primary">Pair an iPhone</button>
+    <p class="fine">Your password works just as before. Tessera only adds Face ID as a second way in.
+      To unlock, run the Tessera shortcut on your iPhone.</p>
+  </section>
+
+  <!-- pairing: set up the shortcuts, run one, compare the code -->
+  <section id="pairing" hidden>
+    <h2>Pair an iPhone</h2>
+    <ol class="steps">
+      <li>
+        <h3>Set up the two shortcuts</h3>
+        <p>Point your iPhone's camera at this code and follow the steps it opens. Only needed once.</p>
+        <img id="qr" alt="QR code for setting up the shortcuts">
+      </li>
+      <li>
+        <h3>Run the Tessera shortcut</h3>
+        <p>Your iPhone asks to save a passkey. Confirm with Face ID, then tap <b>Send to laptop</b>.</p>
+      </li>
+    </ol>
+    <p class="wait">Waiting for your iPhone · <span id="left"></span></p>
+    <button id="cancel" class="btn">Cancel</button>
+  </section>
+
+  <!-- the code check -->
+  <section id="confirm" hidden>
+    <h2>Does your iPhone show this code?</h2>
+    <div class="code" id="code"></div>
+    <p class="fine">If the codes differ, someone else may have answered at the same moment. Cancel and try again.</p>
+    <div class="row">
+      <button id="no" class="btn">They're different</button>
+      <button id="yes" class="btn primary">They match</button>
+    </div>
+  </section>
+
+  <footer id="where"></footer>
+  <script src="window.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+/* Tessera window. Same palette as the phone page, Toss, Pluck and Vertorama. */
+
+@font-face {
+  font-family: "Inter";
+  src: url("InterVariable.woff2") format("woff2");
+  font-weight: 100 900;
+}
+
+:root {
+  --bg: #101012;
+  --card: #18181a;
+  --raised: #222226;
+  --hair: rgba(255, 255, 255, 0.10);
+  --text: #f4f2ef;
+  --t2: rgba(244, 242, 239, 0.62);
+  --t3: rgba(244, 242, 239, 0.4);
+  --sand: #d6b28c;
+  --bad: #e5847a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body {
+  font: 400 14px/1.5 Inter, "Noto Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--text);
+  padding: 28px 30px 24px;
+  user-select: none; cursor: default;
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+button { font: inherit; color: inherit; border: 0; background: none; cursor: default; }
+[hidden] { display: none !important; }
+
+header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.mark { width: 48px; height: 48px; flex: none; }
+h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.015em; }
+.sub { color: var(--t2); }
+h2 { font-size: 13px; font-weight: 650; color: var(--t2); margin-bottom: 10px; }
+#confirm h2 { font-size: 17px; color: var(--text); text-align: center; margin-top: 20px; }
+
+.banner { background: rgba(229, 132, 122, 0.12); color: var(--bad); padding: 10px 14px; border-radius: 10px; margin-bottom: 18px; }
+
+#devices { list-style: none; }
+#devices li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; background: var(--card); border: 1px solid var(--hair); border-radius: 12px; margin-bottom: 8px;
+}
+#devices .phone { width: 28px; height: 28px; flex: none; color: var(--t2); }
+#devices .info { flex: 1; min-width: 0; }
+#devices .name { font-weight: 600; }
+#devices .when { color: var(--t2); font-size: 12.5px; }
+.empty { color: var(--t2); padding: 14px; border: 1px dashed var(--hair); border-radius: 12px; text-align: center; }
+
+.btn {
+  height: 38px; padding: 0 18px; border-radius: 999px; font-weight: 600; font-size: 13.5px;
+  background: var(--raised); transition: background 120ms;
+}
+.btn:hover { background: #2b2b30; }
+.btn.primary { background: var(--text); color: #101012; }
+.btn.primary:hover { background: #fff; }
+.btn.small { height: 30px; padding: 0 12px; font-size: 12.5px; }
+.btn.danger { color: var(--bad); }
+#pair, #cancel { margin-top: 18px; width: 100%; }
+
+.fine { color: var(--t3); font-size: 12.5px; margin-top: 16px; }
+#confirm .fine { text-align: center; }
+
+ol.steps { list-style: none; counter-reset: s; }
+ol.steps > li { counter-increment: s; position: relative; padding: 0 0 20px 38px; }
+ol.steps > li::before {
+  content: counter(s); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--raised); font-size: 12px; font-weight: 650;
+  display: flex; align-items: center; justify-content: center;
+}
+ol.steps h3 { font-size: 14.5px; font-weight: 650; }
+ol.steps p { color: var(--t2); }
+ol.steps b { color: var(--text); font-weight: 600; }
+#qr { display: block; width: 168px; height: 168px; margin-top: 12px; background: #fff; border-radius: 10px; padding: 6px; }
+.wait { color: var(--sand); font-variant-numeric: tabular-nums; }
+
+.code {
+  font-size: 54px; font-weight: 700; letter-spacing: 0.18em; text-align: center;
+  font-variant-numeric: tabular-nums; margin: 18px 0 4px;
+}
+.row { display: flex; gap: 10px; margin-top: 22px; }
+.row .btn { flex: 1; }
+
+footer { margin-top: auto; padding-top: 22px; color: var(--t3); font-size: 12px; }

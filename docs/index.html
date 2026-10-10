@@ -4,123 +4,266 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex">
   <title>Tessera</title>
   <style>
     @font-face { font-family: "Inter"; src: url("InterVariable.woff2") format("woff2"); font-weight: 100 900; }
     :root {
       --bg: #101012; --card: #18181a; --raised: #222226; --hair: rgba(255, 255, 255, 0.10);
-      --text: #f4f2ef; --t2: rgba(244, 242, 239, 0.62); --sand: #d6b28c; --bad: #e5847a;
+      --text: #f4f2ef; --t2: rgba(244, 242, 239, 0.62); --t3: rgba(244, 242, 239, 0.4);
+      --sand: #d6b28c; --bad: #e5847a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: var(--bg); color: var(--text); }
     body {
       font: 400 16px/1.5 Inter, -apple-system, sans-serif; -webkit-font-smoothing: antialiased;
-      min-height: 100vh; padding: max(28px, env(safe-area-inset-top)) 20px 40px;
+      min-height: 100vh; min-height: 100dvh;
+      padding: max(40px, env(safe-area-inset-top)) 22px max(32px, env(safe-area-inset-bottom));
       display: flex; flex-direction: column; align-items: center;
     }
-    main { width: 100%; max-width: 420px; }
-    h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
-    .sub { color: var(--t2); margin: 4px 0 28px; }
-    .step { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
-    .step h2 { font-size: 15px; font-weight: 650; margin-bottom: 4px; }
-    .step p { color: var(--t2); font-size: 14px; margin-bottom: 14px; }
-    button {
-      font: inherit; font-size: 16px; font-weight: 650; width: 100%; height: 50px; border: 0; border-radius: 999px;
-      background: var(--text); color: #101012;
+    main { width: 100%; max-width: 420px; flex: 1; display: flex; flex-direction: column; }
+    [hidden] { display: none !important; }
+
+    .mark { width: 56px; height: 56px; margin-bottom: 22px; }
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+    .sub { color: var(--t2); margin-top: 8px; }
+    .status { margin-top: 28px; color: var(--t2); font-size: 15px; min-height: 1.5em; }
+    .status.ok { color: var(--sand); }
+    .status.bad { color: var(--bad); }
+    .grow { flex: 1; }
+
+    button, .button {
+      font: inherit; font-size: 17px; font-weight: 650; width: 100%; height: 54px; border: 0; border-radius: 999px;
+      background: var(--text); color: #101012; display: flex; align-items: center; justify-content: center;
+      text-decoration: none; margin-top: 12px;
     }
     button.quiet { background: var(--raised); color: var(--text); }
-    button:disabled { opacity: 0.5; }
-    #log { margin-top: 18px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: var(--t2); white-space: pre-wrap; word-break: break-all; }
-    .ok { color: var(--sand); }
-    .bad { color: var(--bad); }
+
+    .code {
+      margin-top: 30px; font-size: 56px; font-weight: 700; letter-spacing: 0.18em; text-align: center;
+      font-variant-numeric: tabular-nums; color: var(--text);
+    }
+    .code-note { text-align: center; color: var(--t2); font-size: 15px; margin-top: 6px; }
+
+    ol.steps { list-style: none; counter-reset: s; margin-top: 26px; }
+    ol.steps > li { counter-increment: s; position: relative; padding: 0 0 22px 40px; }
+    ol.steps > li::before {
+      content: counter(s); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%;
+      background: var(--raised); color: var(--text); font-size: 13px; font-weight: 650;
+      display: flex; align-items: center; justify-content: center;
+    }
+    ol.steps h3 { font-size: 16px; font-weight: 650; }
+    ol.steps p, ol.steps li li { color: var(--t2); font-size: 15px; }
+    ol.steps ul { margin: 6px 0 0 18px; }
+    ol.steps b { color: var(--text); font-weight: 600; }
+    .addr {
+      display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 10px 10px 14px;
+      background: var(--card); border: 1px solid var(--hair); border-radius: 12px;
+    }
+    .addr code { flex: 1; font: 13px/1.4 ui-monospace, Menlo, monospace; color: var(--text); word-break: break-all; }
+    .addr button { width: auto; height: 34px; padding: 0 14px; margin: 0; font-size: 14px; flex: none; }
+    footer { margin-top: 28px; color: var(--t3); font-size: 13px; text-align: center; }
+    footer a { color: var(--t2); }
   </style>
 </head>
 <body>
 <main>
-  <h1>Tessera</h1>
-  <p class="sub">Test page. Checks that Face ID passkeys work here and can hand their answer back to Shortcuts.</p>
+  <svg class="mark" viewBox="0 0 56 56" aria-hidden="true">
+    <rect width="56" height="56" rx="14" fill="#1c1b20"/>
+    <path d="M14 15h12v8l-3 3 3 3v12H14z" fill="#f4f2ef" opacity=".9"/>
+    <path d="M42 15H30v8l-3 3 3 3v12h12z" fill="#d6b28c"/>
+  </svg>
 
-  <section class="step">
-    <h2>1. Create the test passkey</h2>
-    <p>Once only. It's saved in Passwords as "Tessera test".</p>
-    <button id="create">Create passkey</button>
+  <!-- unlocking -->
+  <section id="unlock" hidden>
+    <h1>Unlocking <span class="laptop">your laptop</span></h1>
+    <p class="sub">Confirm with Face ID.</p>
+    <p class="status" id="unlock-status"></p>
+    <button id="unlock-retry" hidden>Try again</button>
   </section>
 
-  <section class="step">
-    <h2>2. Sign with Face ID</h2>
-    <p>Signs a one-time code, the way unlocking will.</p>
-    <button id="sign" class="quiet">Sign with Face ID</button>
+  <!-- pairing -->
+  <section id="pair" hidden>
+    <h1>Pair with <span class="laptop">your laptop</span></h1>
+    <p class="sub">This makes a passkey on your iPhone that only Face ID can use. Your laptop keeps the matching half.</p>
+    <div id="pair-start">
+      <p class="status" id="pair-status"></p>
+      <button id="pair-create">Create passkey</button>
+    </div>
+    <div id="pair-done" hidden>
+      <div class="code" id="pair-code"></div>
+      <p class="code-note">Your laptop shows a code too. Send this, then check they match.</p>
+      <button id="pair-send">Send to laptop</button>
+    </div>
   </section>
 
-  <div id="log"></div>
+  <!-- setting up the shortcuts, opened from the QR code on the laptop -->
+  <section id="setup" hidden>
+    <h1>Set up Tessera</h1>
+    <p class="sub">Two shortcuts, once. Tessera itself needs no app.</p>
+    <ol class="steps">
+      <li>
+        <h3>The “Tessera” shortcut</h3>
+        <p>In Shortcuts, tap <b>+</b> and name it <b>Tessera</b>. Add these two actions:</p>
+        <ul>
+          <li><b>Get Contents of URL</b>, with this address:</li>
+        </ul>
+        <div class="addr"><code id="addr-start"></code><button class="quiet" data-copy="addr-start">Copy</button></div>
+        <ul><li style="margin-top:8px"><b>Open URLs</b>. It fills in <b>Contents of URL</b> by itself.</li></ul>
+      </li>
+      <li>
+        <h3>The “Tessera Reply” shortcut</h3>
+        <p>Tap <b>+</b> again and name it <b>Tessera Reply</b>. Add:</p>
+        <ul><li><b>Get Contents of URL</b>, with this address:</li></ul>
+        <div class="addr"><code id="addr-answer"></code><button class="quiet" data-copy="addr-answer">Copy</button></div>
+        <ul>
+          <li style="margin-top:8px">Tap the arrow on that action: set <b>Method</b> to <b>POST</b>, <b>Request Body</b> to <b>File</b>, and the file to <b>Shortcut Input</b>.</li>
+          <li><b>Show Notification</b>, with <b>Contents of URL</b>.</li>
+        </ul>
+      </li>
+      <li>
+        <h3>Pair</h3>
+        <p>On the laptop, press <b>Pair</b>, then run <b>Tessera</b> here.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- errors, and opened by hand -->
+  <section id="message" hidden>
+    <h1 id="message-title">Tessera</h1>
+    <p class="sub" id="message-text">Unlock your Linux laptop with Face ID on your iPhone. Run the Tessera shortcut to begin.</p>
+  </section>
+
+  <div class="grow"></div>
+  <footer><a href="https://github.com/BeansAsset/tessera">How Tessera works</a></footer>
 </main>
 <script>
 "use strict";
 const RP = "beansasset.github.io";
-const logEl = document.getElementById("log");
-function log(text, cls) {
-  const line = document.createElement("div");
-  line.textContent = text;
-  if (cls) line.className = cls;
-  logEl.append(line);
-}
-const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-const fromB64url = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+const REPLY = "Tessera Reply";
 
-// The shortcut passes its one-time code and where to send the answer in the
-// address after #, e.g. #c=CODE&back=Tessera%20Back
+const $ = (id) => document.getElementById(id);
+const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)))
+  .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const unb64url = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+
 const params = new URLSearchParams(location.hash.slice(1));
-const fromShortcut = params.has("c");
+const laptop = params.get("laptop");
+if (laptop) for (const el of document.querySelectorAll(".laptop")) el.textContent = laptop;
 
-async function create() {
+function show(id) {
+  for (const s of document.querySelectorAll("main > section")) s.hidden = s.id !== id;
+}
+
+function status(id, text, kind) {
+  const el = $(id);
+  el.textContent = text;
+  el.className = "status" + (kind ? " " + kind : "");
+}
+
+function reply(answer) {
+  location.href = "shortcuts://run-shortcut?name=" + encodeURIComponent(REPLY) +
+    "&input=text&text=" + encodeURIComponent(answer);
+}
+
+function why(e) {
+  if (e && e.name === "NotAllowedError") return "Cancelled, or Face ID didn't pass.";
+  return "Something went wrong" + (e && e.name ? ` (${e.name})` : "") + ".";
+}
+
+// ---- unlocking ----------------------------------------------------------------------
+
+async function unlock() {
+  $("unlock-retry").hidden = true;
+  status("unlock-status", "");
+  const allow = (params.get("k") || "").split(",").filter(Boolean)
+    .map((id) => ({ type: "public-key", id: unb64url(id) }));
+  try {
+    const cred = await navigator.credentials.get({ publicKey: {
+      rpId: RP, challenge: unb64url(params.get("c")), allowCredentials: allow,
+      userVerification: "required", timeout: 90000,
+    }});
+    const r = cred.response;
+    status("unlock-status", "Sending to your laptop…", "ok");
+    reply(["u", b64url(cred.rawId), b64url(r.authenticatorData), b64url(r.clientDataJSON), b64url(r.signature)].join("."));
+  } catch (e) {
+    status("unlock-status", why(e), "bad");
+    $("unlock-retry").hidden = false;
+  }
+}
+
+// ---- pairing -------------------------------------------------------------------------
+
+let pairAnswer = null;
+
+async function pair() {
+  status("pair-status", "");
+  const challenge = unb64url(params.get("pair"));
+  const name = laptop ? `Tessera · ${laptop}` : "Tessera";
   try {
     const cred = await navigator.credentials.create({ publicKey: {
       rp: { id: RP, name: "Tessera" },
-      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "Tessera test", displayName: "Tessera test" },
-      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name, displayName: name },
+      challenge,
       pubKeyCredParams: [{ type: "public-key", alg: -7 }],
       authenticatorSelection: { residentKey: "required", userVerification: "required" },
-      timeout: 60000,
+      attestation: "none",
+      timeout: 90000,
     }});
-    log("Passkey created.", "ok");
-    log("id " + b64url(cred.rawId).slice(0, 16) + "…");
+    // The same four digits the laptop works out: from the challenge and the new key's id.
+    const raw = new Uint8Array(cred.rawId);
+    const both = new Uint8Array(challenge.length + raw.length);
+    both.set(challenge); both.set(raw, challenge.length);
+    const digest = new DataView(await crypto.subtle.digest("SHA-256", both));
+    $("pair-code").textContent = String(digest.getUint32(0) % 10000).padStart(4, "0");
+    pairAnswer = ["p", b64url(cred.rawId), b64url(cred.response.clientDataJSON),
+                  b64url(cred.response.attestationObject)].join(".");
+    $("pair-start").hidden = true;
+    $("pair-done").hidden = false;
   } catch (e) {
-    log("Couldn't create it: " + e.name + " " + e.message, "bad");
+    status("pair-status", why(e), "bad");
   }
 }
 
-async function sign(auto) {
-  const challenge = fromShortcut ? fromB64url(params.get("c")) : crypto.getRandomValues(new Uint8Array(32));
-  const started = performance.now();
-  try {
-    const cred = await navigator.credentials.get({ publicKey: {
-      rpId: RP, challenge, userVerification: "required", timeout: 60000,
-    }});
-    const flags = new Uint8Array(cred.response.authenticatorData)[32];
-    const verified = Boolean(flags & 0x04);
-    log(`Signed ${auto ? "automatically" : "after a tap"} in ${Math.round(performance.now() - started)} ms.`, "ok");
-    log(verified ? "Face ID (user verified): yes" : "Face ID (user verified): NO", verified ? "ok" : "bad");
-    if (fromShortcut) {
-      const answer = [cred.rawId, cred.response.authenticatorData, cred.response.clientDataJSON, cred.response.signature]
-        .map(b64url).join(".");
-      const back = params.get("back") || "Tessera Back";
-      log("Handing the answer back to Shortcuts…");
-      location.href = "shortcuts://run-shortcut?name=" + encodeURIComponent(back) +
-        "&input=text&text=" + encodeURIComponent(answer);
-    }
-  } catch (e) {
-    log(`${auto ? "Automatic" : "Tapped"} sign failed: ${e.name}`, "bad");
-    if (auto) log("Tap Sign with Face ID instead.");
+// ---- setup -----------------------------------------------------------------------------
+
+function setup(host) {
+  $("addr-start").textContent = `http://${host}/start`;
+  $("addr-answer").textContent = `http://${host}/answer`;
+  for (const b of document.querySelectorAll("[data-copy]")) {
+    b.addEventListener("click", async () => {
+      await navigator.clipboard.writeText($(b.dataset.copy).textContent);
+      b.textContent = "Copied";
+      setTimeout(() => { b.textContent = "Copy"; }, 1500);
+    });
   }
 }
 
-document.getElementById("create").addEventListener("click", create);
-document.getElementById("sign").addEventListener("click", () => sign(false));
+// ---- which page is this --------------------------------------------------------------------
 
-if (!window.PublicKeyCredential) log("This browser doesn't support passkeys.", "bad");
-else if (fromShortcut) {
-  log("Opened by the shortcut, with a code.");
-  sign(true);   // does Safari allow Face ID without a tap? that's one of the questions
+$("unlock-retry").addEventListener("click", unlock);
+$("pair-create").addEventListener("click", pair);
+$("pair-send").addEventListener("click", () => reply(pairAnswer));
+
+if (!window.PublicKeyCredential && (params.has("c") || params.has("pair"))) {
+  show("message");
+  $("message-title").textContent = "Passkeys aren't available";
+  $("message-text").textContent = "Open this in Safari on iOS 16 or later.";
+} else if (params.has("c")) {
+  show("unlock");
+  unlock();
+} else if (params.has("pair")) {
+  show("pair");
+  pair();          // starts straight away; the button is there if Safari wants a tap first
+} else if (params.has("setup")) {
+  show("setup");
+  setup(params.get("setup"));
+} else if (params.has("error")) {
+  show("message");
+  $("message-title").textContent = "Not yet";
+  $("message-text").textContent = params.get("error");
+} else {
+  show("message");
 }
 </script>
 </body>
