@@ -12,7 +12,7 @@ half was welcomed as a friend. Tessera works the same way: your laptop keeps
 one half (a public key), your iPhone keeps the other (a passkey that only
 Face ID can use), and only a match opens the lock screen.
 
-![Tessera's window on the laptop, with one paired iPhone](media/window.png)
+![Tessera on the laptop, before pairing: Unlock with your iPhone](media/welcome.png)
 
 ## Using it
 
@@ -21,6 +21,11 @@ Face ID checks it's you, and you tap **Open** to hand the answer back to
 Shortcuts. The laptop unlocks and tells you so:
 
 ![A notification on the laptop: Unlocked with Face ID, from iPhone](media/notification.png)
+
+Tessera's window shows which iPhones are paired and when each last unlocked
+the laptop:
+
+![The paired iPhone, last unlocked today](media/window.png)
 
 ### Unlock with a double tap on the back of your iPhone
 
@@ -54,7 +59,7 @@ exact command for your distro:
 | Arch, Manjaro | `sudo pacman -S --needed python-gobject gtk3 webkit2gtk-4.1 python-cryptography python-qrcode` |
 | openSUSE | `sudo zypper install python3-gobject typelib-1_0-Gtk-3_0 typelib-1_0-WebKit2-4_1 python3-cryptography python3-qrcode` |
 
-Then open **Tessera** from your apps menu and press **Pair an iPhone**:
+Then open **Tessera** from your apps menu and choose **Pair iPhone**:
 
 ![Pairing: a QR code to set up the shortcuts, and a countdown while it waits for the iPhone](media/pairing.png)
 
@@ -62,9 +67,9 @@ Then open **Tessera** from your apps menu and press **Pair an iPhone**:
    shortcuts to make, **Tessera** and **Tessera Reply**, and Copy buttons for
    the addresses they need. This is only needed once.
 2. Run the **Tessera** shortcut. Your iPhone offers to save a passkey;
-   confirm with Face ID and tap **Send to laptop**.
+   confirm with Face ID and tap **Send to Laptop**.
 3. Check that the four-digit code on the iPhone matches the one on the
-   laptop, and press **They match**.
+   laptop, and choose **Codes Match**.
 
 ![The laptop asks whether the iPhone shows the same four-digit code](media/code.png)
 
@@ -120,7 +125,7 @@ tessera/
   server.py     the small local web service the shortcuts talk to
   session.py    unlocking this desktop session
   main.py       the app: the service and the window
-  web/          the window (HTML, CSS, JS, Inter font)
+  web/          the window (HTML, CSS, JS)
 docs/           the page that runs on the iPhone (GitHub Pages)
 tools/          setup for any common distro
 tests/          python3 -m unittest discover -s tests
@@ -128,4 +133,4 @@ tests/          python3 -m unittest discover -s tests
 
 ## License
 
-GPL-3.0-or-later (`LICENSE`). Inter is under the SIL Open Font License 1.1.
+GPL-3.0-or-later (`LICENSE`).

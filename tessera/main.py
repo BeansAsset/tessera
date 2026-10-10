@@ -43,7 +43,7 @@ class Window(WebWindow):
 
     def __init__(self, app):
         super().__init__(app, background=(0.063, 0.063, 0.071, 1), title=APP_NAME)
-        self.set_default_size(560, 720)
+        self.set_default_size(560, 560)
         if os.path.exists(ICON):
             self.set_icon_from_file(ICON)
         self.connect("destroy", lambda *_: app.window_closed())

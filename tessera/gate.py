@@ -105,7 +105,7 @@ class Gate:
                 return f"{page}#pair={b64url(c)}&laptop={name}"
             if not self.devices:
                 return f"{page}#error=" + urllib.parse.quote(
-                    "This iPhone isn't paired yet. Open Tessera on your laptop and press Pair.")
+                    "This iPhone isn't paired yet. Open Tessera on your laptop and choose Pair iPhone.")
             c = self._issue("unlock")
             keys = ",".join(d["id"] for d in self.devices)
             return f"{page}#c={b64url(c)}&k={keys}&laptop={name}"

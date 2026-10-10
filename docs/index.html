@@ -3,140 +3,157 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light dark">
   <meta name="robots" content="noindex">
   <title>Tessera</title>
   <style>
-    @font-face { font-family: "Inter"; src: url("InterVariable.woff2") format("woff2"); font-weight: 100 900; }
+    /* Laid out like an iPhone settings screen: the system font, grouped
+       lists, iOS colours, light or dark following the phone. */
     :root {
-      --bg: #101012; --card: #18181a; --raised: #222226; --hair: rgba(255, 255, 255, 0.10);
-      --text: #f4f2ef; --t2: rgba(244, 242, 239, 0.62); --t3: rgba(244, 242, 239, 0.4);
-      --sand: #d6b28c; --bad: #e5847a;
+      --bg: #f2f2f7; --group: #ffffff; --separator: rgba(60, 60, 67, 0.18);
+      --label: #000000; --secondary: rgba(60, 60, 67, 0.6); --tertiary: rgba(60, 60, 67, 0.3);
+      --blue: #007aff; --red: #ff3b30; --fill: rgba(120, 120, 128, 0.12);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000; --group: #1c1c1e; --separator: rgba(84, 84, 88, 0.6);
+        --label: #ffffff; --secondary: rgba(235, 235, 245, 0.6); --tertiary: rgba(235, 235, 245, 0.3);
+        --blue: #0a84ff; --red: #ff453a; --fill: rgba(120, 120, 128, 0.24);
+      }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { background: var(--bg); color: var(--text); }
+    html, body { background: var(--bg); color: var(--label); }
     body {
-      font: 400 16px/1.5 Inter, -apple-system, sans-serif; -webkit-font-smoothing: antialiased;
+      font: 400 17px/1.3 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      -webkit-text-size-adjust: 100%;
       min-height: 100vh; min-height: 100dvh;
-      padding: max(40px, env(safe-area-inset-top)) 22px max(32px, env(safe-area-inset-bottom));
-      display: flex; flex-direction: column; align-items: center;
+      padding: max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+      display: flex; flex-direction: column;
     }
-    main { width: 100%; max-width: 420px; flex: 1; display: flex; flex-direction: column; }
+    main { width: 100%; max-width: 500px; margin: 0 auto; flex: 1; display: flex; flex-direction: column; }
     [hidden] { display: none !important; }
 
-    .mark { width: 56px; height: 56px; margin-bottom: 22px; }
-    h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
-    .sub { color: var(--t2); margin-top: 8px; }
-    .status { margin-top: 28px; color: var(--t2); font-size: 15px; min-height: 1.5em; }
-    .status.ok { color: var(--sand); }
-    .status.bad { color: var(--bad); }
-    .grow { flex: 1; }
+    /* a centred screen: icon, title, text */
+    .hero { text-align: center; padding: 48px 8px 8px; }
+    .hero .icon { width: 76px; height: 76px; margin: 0 auto 18px; display: block; }
+    .hero h1 { font-size: 28px; font-weight: 700; letter-spacing: 0.01em; }
+    .hero p { color: var(--secondary); font-size: 17px; margin-top: 8px; }
+    .status { margin-top: 18px; font-size: 15px; color: var(--secondary); min-height: 1.3em; text-align: center; }
+    .status.bad { color: var(--red); }
 
-    button, .button {
-      font: inherit; font-size: 17px; font-weight: 650; width: 100%; height: 54px; border: 0; border-radius: 999px;
-      background: var(--text); color: #101012; display: flex; align-items: center; justify-content: center;
-      text-decoration: none; margin-top: 12px;
+    /* iOS-style buttons: filled, rounded rectangle, full width */
+    .button {
+      display: block; width: 100%; margin-top: 24px; padding: 15px 20px; border: 0; border-radius: 14px;
+      background: var(--blue); color: #fff; font-family: inherit; font-size: 17px; font-weight: 600; line-height: 1.2;
     }
-    button.quiet { background: var(--raised); color: var(--text); }
+    .button.plain { background: var(--fill); color: var(--blue); }
 
+    /* the pairing code */
     .code {
-      margin-top: 30px; font-size: 56px; font-weight: 700; letter-spacing: 0.18em; text-align: center;
-      font-variant-numeric: tabular-nums; color: var(--text);
+      margin: 28px auto 0; font: 600 46px/1 ui-monospace, "SF Mono", Menlo, monospace;
+      letter-spacing: 0.22em; padding-left: 0.22em; text-align: center;
     }
-    .code-note { text-align: center; color: var(--t2); font-size: 15px; margin-top: 6px; }
 
-    ol.steps { list-style: none; counter-reset: s; margin-top: 26px; }
-    ol.steps > li { counter-increment: s; position: relative; padding: 0 0 22px 40px; }
-    ol.steps > li::before {
-      content: counter(s); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%;
-      background: var(--raised); color: var(--text); font-size: 13px; font-weight: 650;
-      display: flex; align-items: center; justify-content: center;
-    }
-    ol.steps h3 { font-size: 16px; font-weight: 650; }
-    ol.steps p, ol.steps li li { color: var(--t2); font-size: 15px; }
-    ol.steps ul { margin: 6px 0 0 18px; }
-    ol.steps b { color: var(--text); font-weight: 600; }
-    .addr {
-      display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 10px 10px 14px;
-      background: var(--card); border: 1px solid var(--hair); border-radius: 12px;
-    }
-    .addr code { flex: 1; font: 13px/1.4 ui-monospace, Menlo, monospace; color: var(--text); word-break: break-all; }
-    .addr button { width: auto; height: 34px; padding: 0 14px; margin: 0; font-size: 14px; flex: none; }
-    footer { margin-top: 28px; color: var(--t3); font-size: 13px; text-align: center; }
-    footer a { color: var(--t2); }
+    /* grouped lists */
+    .large-title { font-size: 34px; font-weight: 700; padding: 28px 4px 4px; }
+    .intro { color: var(--secondary); font-size: 15px; padding: 0 4px; }
+    .header { font-size: 13px; text-transform: uppercase; color: var(--secondary); padding: 26px 16px 7px; }
+    .footer { font-size: 13px; color: var(--secondary); padding: 7px 16px 0; }
+    .list { background: var(--group); border-radius: 10px; overflow: hidden; }
+    .cell { padding: 11px 16px; position: relative; }
+    .cell + .cell::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 0.5px; background: var(--separator); }
+    .cell .small { font-size: 15px; color: var(--secondary); margin-top: 2px; }
+    .cell b { font-weight: 600; }
+    .copy { display: flex; align-items: center; gap: 12px; }
+    .copy code { flex: 1; font: 15px/1.35 ui-monospace, "SF Mono", Menlo, monospace; word-break: break-all; }
+    .copy button { border: 0; background: none; color: var(--blue); font-family: inherit; font-size: 17px; padding: 6px 0; flex: none; }
+
+    .grow { flex: 1; }
+    footer { margin-top: 32px; text-align: center; font-size: 13px; }
+    footer a { color: var(--secondary); text-decoration: none; }
   </style>
 </head>
 <body>
 <main>
-  <svg class="mark" viewBox="0 0 56 56" aria-hidden="true">
-    <rect width="56" height="56" rx="14" fill="#1c1b20"/>
-    <path d="M14 15h12v8l-3 3 3 3v12H14z" fill="#f4f2ef" opacity=".9"/>
-    <path d="M42 15H30v8l-3 3 3 3v12h12z" fill="#d6b28c"/>
-  </svg>
-
   <!-- unlocking -->
-  <section id="unlock" hidden>
-    <h1>Unlocking <span class="laptop">your laptop</span></h1>
-    <p class="sub">Confirm with Face ID.</p>
+  <section id="unlock" class="hero" hidden>
+    <svg class="icon" viewBox="8 8 112 112" aria-hidden="true"><use href="#mark"/></svg>
+    <h1>Unlock <span class="laptop">your laptop</span></h1>
+    <p>Confirm with Face ID.</p>
     <p class="status" id="unlock-status"></p>
-    <button id="unlock-retry" hidden>Try again</button>
+    <button class="button" id="unlock-retry" hidden>Try Again</button>
   </section>
 
   <!-- pairing -->
-  <section id="pair" hidden>
-    <h1>Pair with <span class="laptop">your laptop</span></h1>
-    <p class="sub">This makes a passkey on your iPhone that only Face ID can use. Your laptop keeps the matching half.</p>
+  <section id="pair" class="hero" hidden>
+    <svg class="icon" viewBox="8 8 112 112" aria-hidden="true"><use href="#mark"/></svg>
     <div id="pair-start">
+      <h1>Pair with <span class="laptop">your laptop</span></h1>
+      <p>Saves a passkey on this iPhone that only Face ID can use. Your laptop keeps the matching half.</p>
       <p class="status" id="pair-status"></p>
-      <button id="pair-create">Create passkey</button>
+      <button class="button" id="pair-create">Create Passkey</button>
     </div>
     <div id="pair-done" hidden>
+      <h1>Check the Code</h1>
+      <p>Your laptop shows a code too. Send this one, then check they match.</p>
       <div class="code" id="pair-code"></div>
-      <p class="code-note">Your laptop shows a code too. Send this, then check they match.</p>
-      <button id="pair-send">Send to laptop</button>
+      <button class="button" id="pair-send">Send to Laptop</button>
     </div>
   </section>
 
   <!-- setting up the shortcuts, opened from the QR code on the laptop -->
   <section id="setup" hidden>
-    <h1>Set up Tessera</h1>
-    <p class="sub">Two shortcuts, once. Tessera itself needs no app.</p>
-    <ol class="steps">
-      <li>
-        <h3>The “Tessera” shortcut</h3>
-        <p>In Shortcuts, tap <b>+</b> and name it <b>Tessera</b>. Add these two actions:</p>
-        <ul>
-          <li><b>Get Contents of URL</b>, with this address:</li>
-        </ul>
-        <div class="addr"><code id="addr-start"></code><button class="quiet" data-copy="addr-start">Copy</button></div>
-        <ul><li style="margin-top:8px"><b>Open URLs</b>. It fills in <b>Contents of URL</b> by itself.</li></ul>
-      </li>
-      <li>
-        <h3>The “Tessera Reply” shortcut</h3>
-        <p>Tap <b>+</b> again and name it <b>Tessera Reply</b>. Add:</p>
-        <ul><li><b>Get Contents of URL</b>, with this address:</li></ul>
-        <div class="addr"><code id="addr-answer"></code><button class="quiet" data-copy="addr-answer">Copy</button></div>
-        <ul>
-          <li style="margin-top:8px">Tap the arrow on that action: set <b>Method</b> to <b>POST</b>, <b>Request Body</b> to <b>File</b>, and the file to <b>Shortcut Input</b>.</li>
-          <li><b>Show Notification</b>, with <b>Contents of URL</b>.</li>
-        </ul>
-      </li>
-      <li>
-        <h3>Pair</h3>
-        <p>On the laptop, press <b>Pair</b>, then run <b>Tessera</b> here.</p>
-      </li>
-    </ol>
+    <h1 class="large-title">Set Up Tessera</h1>
+    <p class="intro">Make two shortcuts in the Shortcuts app. You only do this once.</p>
+
+    <h2 class="header">Shortcut 1: Tessera</h2>
+    <div class="list">
+      <div class="cell">Tap <b>+</b> and name the shortcut <b>Tessera</b>.</div>
+      <div class="cell">Add <b>Get Contents of URL</b> with this address:</div>
+      <div class="cell copy"><code id="addr-start"></code><button data-copy="addr-start">Copy</button></div>
+      <div class="cell">Add <b>Open URLs</b>. It uses <b>Contents of URL</b> by itself.</div>
+    </div>
+
+    <h2 class="header">Shortcut 2: Tessera Reply</h2>
+    <div class="list">
+      <div class="cell">Tap <b>+</b> and name it <b>Tessera Reply</b>, spelled exactly so.</div>
+      <div class="cell">Add <b>Get Contents of URL</b> with this address:</div>
+      <div class="cell copy"><code id="addr-answer"></code><button data-copy="addr-answer">Copy</button></div>
+      <div class="cell">Tap the arrow on that action. Set <b>Method</b> to <b>POST</b> and <b>Request Body</b> to <b>File</b>, then set the file to <b>Shortcut Input</b>.</div>
+      <div class="cell">Add <b>Show Notification</b> and set its text to <b>Contents of URL</b>.</div>
+    </div>
+    <p class="footer">Tessera Reply runs by itself after Face ID. You don't need to tap it.</p>
+
+    <h2 class="header">Then</h2>
+    <div class="list">
+      <div class="cell">On the laptop, choose <b>Pair iPhone</b>, then run <b>Tessera</b> here.</div>
+    </div>
   </section>
 
   <!-- errors, and opened by hand -->
-  <section id="message" hidden>
+  <section id="message" class="hero" hidden>
+    <svg class="icon" viewBox="8 8 112 112" aria-hidden="true"><use href="#mark"/></svg>
     <h1 id="message-title">Tessera</h1>
-    <p class="sub" id="message-text">Unlock your Linux laptop with Face ID on your iPhone. Run the Tessera shortcut to begin.</p>
+    <p id="message-text">Unlock your Linux laptop with Face ID on this iPhone. Run the Tessera shortcut to begin.</p>
   </section>
 
   <div class="grow"></div>
-  <footer><a href="https://github.com/BeansAsset/tessera">How Tessera works</a></footer>
+  <footer><a href="https://github.com/BeansAsset/tessera">About Tessera</a></footer>
 </main>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="mark-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4b8ff0"/><stop offset="1" stop-color="#2a68d4"/>
+    </linearGradient>
+    <g id="mark">
+      <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#mark-bg)"/>
+      <path d="M32 34h28v20l-8 10 8 10v20H32a6 6 0 0 1-6-6V40a6 6 0 0 1 6-6z" fill="#fff"/>
+      <path d="M96 34H68v20l-8 10 8 10v20h28a6 6 0 0 0 6-6V40a6 6 0 0 0-6-6z" fill="#fff" fill-opacity=".55"/>
+    </g>
+  </defs>
+</svg>
+
 <script>
 "use strict";
 const RP = "beansasset.github.io";
@@ -155,10 +172,10 @@ function show(id) {
   for (const s of document.querySelectorAll("main > section")) s.hidden = s.id !== id;
 }
 
-function status(id, text, kind) {
+function status(id, text, bad) {
   const el = $(id);
   el.textContent = text;
-  el.className = "status" + (kind ? " " + kind : "");
+  el.className = "status" + (bad ? " bad" : "");
 }
 
 function reply(answer) {
@@ -167,7 +184,7 @@ function reply(answer) {
 }
 
 function why(e) {
-  if (e && e.name === "NotAllowedError") return "Cancelled, or Face ID didn't pass.";
+  if (e && e.name === "NotAllowedError") return "Cancelled, or Face ID didn't recognise you.";
   return "Something went wrong" + (e && e.name ? ` (${e.name})` : "") + ".";
 }
 
@@ -184,10 +201,10 @@ async function unlock() {
       userVerification: "required", timeout: 90000,
     }});
     const r = cred.response;
-    status("unlock-status", "Sending to your laptop…", "ok");
+    status("unlock-status", "Sending to your laptop…");
     reply(["u", b64url(cred.rawId), b64url(r.authenticatorData), b64url(r.clientDataJSON), b64url(r.signature)].join("."));
   } catch (e) {
-    status("unlock-status", why(e), "bad");
+    status("unlock-status", why(e), true);
     $("unlock-retry").hidden = false;
   }
 }
@@ -221,7 +238,7 @@ async function pair() {
     $("pair-start").hidden = true;
     $("pair-done").hidden = false;
   } catch (e) {
-    status("pair-status", why(e), "bad");
+    status("pair-status", why(e), true);
   }
 }
 
@@ -251,7 +268,7 @@ $("pair-send").addEventListener("click", () => reply(pairAnswer));
 
 if (!window.PublicKeyCredential && (params.has("c") || params.has("pair"))) {
   show("message");
-  $("message-title").textContent = "Passkeys aren't available";
+  $("message-title").textContent = "Passkeys Aren't Available";
   $("message-text").textContent = "Open this in Safari on iOS 16 or later.";
 } else if (params.has("c")) {
   show("unlock");
@@ -264,7 +281,7 @@ if (!window.PublicKeyCredential && (params.has("c") || params.has("pair"))) {
   setup(params.get("setup"));
 } else if (params.has("error")) {
   show("message");
-  $("message-title").textContent = "Not yet";
+  $("message-title").textContent = "Not Paired Yet";
   $("message-text").textContent = params.get("error");
 } else {
   show("message");

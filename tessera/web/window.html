@@ -3,61 +3,88 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self' file:; style-src 'self' file:; font-src 'self' file:; img-src 'self' file: data:; connect-src 'none'">
+        content="default-src 'none'; script-src 'self' file:; style-src 'self' file:; img-src 'self' file: data:; connect-src 'none'">
   <title>Tessera</title>
   <link rel="stylesheet" href="window.css">
 </head>
 <body>
-  <header>
-    <svg class="mark" viewBox="0 0 56 56" aria-hidden="true">
-      <rect width="56" height="56" rx="14" fill="#1c1b20"/>
-      <path d="M14 15h12v8l-3 3 3 3v12H14z" fill="#f4f2ef" opacity=".9"/>
-      <path d="M42 15H30v8l-3 3 3 3v12h12z" fill="#d6b28c"/>
-    </svg>
-    <div>
-      <h1>Tessera</h1>
-      <p class="sub">Unlock this laptop with Face ID on your iPhone.</p>
-    </div>
-  </header>
-
   <p id="error" class="banner" hidden></p>
 
-  <!-- the normal view -->
-  <section id="home">
-    <h2>Your iPhones</h2>
-    <ul id="devices"></ul>
-    <p id="empty" class="empty">No iPhone paired yet.</p>
-    <button id="pair" class="btn primary">Pair an iPhone</button>
-    <p class="fine">Your password works just as before. Tessera only adds Face ID as a second way in.
-      To unlock, run the Tessera shortcut on your iPhone.</p>
+  <!-- nothing paired yet -->
+  <section id="empty" class="status-page" hidden>
+    <img class="app-icon" src="../../data/io.github.beansasset.Tessera.svg" alt="">
+    <h1>Unlock with your iPhone</h1>
+    <p>Pair your iPhone once, then unlock this laptop by running a shortcut and looking at your phone. Your password keeps working as before.</p>
+    <button class="button suggested" data-action="pair">Pair iPhone</button>
   </section>
 
-  <!-- pairing: set up the shortcuts, run one, compare the code -->
+  <!-- paired -->
+  <section id="home" hidden>
+    <div class="group">
+      <h2>Paired iPhones</h2>
+      <ul class="boxed-list" id="devices"></ul>
+    </div>
+
+    <div class="group">
+      <h2>Unlocking</h2>
+      <ul class="boxed-list">
+        <li class="row">
+          <div class="text">
+            <div class="title">Run the Tessera shortcut</div>
+            <div class="subtitle">From the Home Screen, or double-tap the back of your iPhone with Back Tap.</div>
+          </div>
+        </li>
+        <li class="row">
+          <div class="text">
+            <div class="title">Your password</div>
+            <div class="subtitle">Still works, as always.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <button class="button" data-action="pair">Pair Another iPhone…</button>
+    </div>
+  </section>
+
+  <!-- pairing -->
   <section id="pairing" hidden>
-    <h2>Pair an iPhone</h2>
-    <ol class="steps">
-      <li>
-        <h3>Set up the two shortcuts</h3>
-        <p>Point your iPhone's camera at this code and follow the steps it opens. Only needed once.</p>
+    <div class="group">
+      <h2>Pair an iPhone</h2>
+      <div class="card pairing">
         <img id="qr" alt="QR code for setting up the shortcuts">
-      </li>
-      <li>
-        <h3>Run the Tessera shortcut</h3>
-        <p>Your iPhone asks to save a passkey. Confirm with Face ID, then tap <b>Send to laptop</b>.</p>
-      </li>
-    </ol>
-    <p class="wait">Waiting for your iPhone · <span id="left"></span></p>
-    <button id="cancel" class="btn">Cancel</button>
+        <ol>
+          <li>
+            <div class="title">Scan this with your iPhone's camera</div>
+            <div class="subtitle">It shows how to make the two shortcuts. Only needed the first time.</div>
+          </li>
+          <li>
+            <div class="title">Run the Tessera shortcut</div>
+            <div class="subtitle">Save the passkey with Face ID, then tap Send to Laptop.</div>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <div class="waiting">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Waiting for your iPhone</span>
+      <span class="dim" id="left"></span>
+    </div>
+    <div class="actions">
+      <button class="button" id="cancel">Cancel</button>
+    </div>
   </section>
 
-  <!-- the code check -->
-  <section id="confirm" hidden>
-    <h2>Does your iPhone show this code?</h2>
+  <!-- comparing the code -->
+  <section id="confirm" class="status-page" hidden>
+    <h1>Check the Code</h1>
+    <p>Your iPhone shows a four-digit code. It should be the same as this one.</p>
     <div class="code" id="code"></div>
-    <p class="fine">If the codes differ, someone else may have answered at the same moment. Cancel and try again.</p>
-    <div class="row">
-      <button id="no" class="btn">They're different</button>
-      <button id="yes" class="btn primary">They match</button>
+    <p class="small">If they differ, another device answered at the same time. Choose Cancel and pair again.</p>
+    <div class="actions split">
+      <button class="button" id="no">Cancel</button>
+      <button class="button suggested" id="yes">Codes Match</button>
     </div>
   </section>
 

@@ -19,58 +19,62 @@ window.App = {
 
 const $ = (id) => document.getElementById(id);
 
-const PHONE = '<svg class="phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>';
+const PHONE = '<svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M5 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H5zm0 1.5h6a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5zM6.5 11a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3z"/></svg>';
 
 function when(seconds) {
   if (!seconds) return null;
   const d = new Date(seconds * 1000);
-  const today = new Date();
-  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  if (d.toDateString() === today.toDateString()) return `today ${time}`;
-  return d.toLocaleDateString([], { day: "numeric", month: "short" });
+  const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (d.toDateString() === new Date().toDateString()) return `today at ${time}`;
+  return d.toLocaleDateString([], { day: "numeric", month: "long" });
 }
 
 function deviceRow(d) {
   const li = document.createElement("li");
+  li.className = "row";
   const icon = document.createElement("template");
   icon.innerHTML = PHONE;
-  const info = document.createElement("div");
-  info.className = "info";
-  const name = document.createElement("div");
-  name.className = "name";
-  name.textContent = d.name || "iPhone";
-  const time = document.createElement("div");
-  time.className = "when";
-  const used = when(d.last_used);
-  time.textContent = `Paired ${when(d.added)}` + (used ? ` · last unlocked ${used}` : "");
-  info.append(name, time);
 
+  const text = document.createElement("div");
+  text.className = "text";
+  const title = document.createElement("div");
+  title.className = "title";
+  title.textContent = d.name || "iPhone";
+  const sub = document.createElement("div");
+  sub.className = "subtitle";
+  const used = when(d.last_used);
+  sub.textContent = used ? `Last unlocked ${used}` : `Paired ${when(d.added)}`;
+  text.append(title, sub);
+
+  // Removing asks once more, in place, before it happens.
   const remove = document.createElement("button");
-  remove.className = "btn small";
+  remove.className = "button flat";
   remove.textContent = "Remove";
   remove.addEventListener("click", () => {
     if (remove.dataset.sure) { call("remove", d.id); return; }
     remove.dataset.sure = "1";
-    remove.textContent = "Remove for sure";
-    remove.classList.add("danger");
-    setTimeout(() => { delete remove.dataset.sure; remove.textContent = "Remove"; remove.classList.remove("danger"); }, 3000);
+    remove.textContent = "Remove iPhone?";
+    remove.classList.add("destructive");
+    setTimeout(() => {
+      delete remove.dataset.sure;
+      remove.textContent = "Remove";
+      remove.classList.remove("destructive");
+    }, 3000);
   });
-  li.append(icon.content.firstChild, info, remove);
+
+  li.append(icon.content.firstChild, text, remove);
   return li;
 }
 
 function render(s) {
   $("error").hidden = !s.error;
   $("error").textContent = s.error || "";
-  $("where").textContent = `Listening on your Wi-Fi as ${s.address}`;
+  $("where").textContent = `Reachable on this network as ${s.address}`;
 
-  const view = s.code ? "confirm" : s.pairing ? "pairing" : "home";
-  for (const id of ["home", "pairing", "confirm"]) $(id).hidden = id !== view;
+  const view = s.code ? "confirm" : s.pairing ? "pairing" : s.devices.length ? "home" : "empty";
+  for (const id of ["empty", "home", "pairing", "confirm"]) $(id).hidden = id !== view;
 
   $("devices").replaceChildren(...s.devices.map(deviceRow));
-  $("empty").hidden = s.devices.length > 0;
-  $("pair").textContent = s.devices.length ? "Pair another iPhone" : "Pair an iPhone";
-
   if (!$("qr").src) $("qr").src = s.setup_qr;
   const m = Math.floor(s.pairing / 60), sec = String(s.pairing % 60).padStart(2, "0");
   $("left").textContent = `${m}:${sec}`;
@@ -78,7 +82,7 @@ function render(s) {
 }
 on.state = render;
 
-$("pair").addEventListener("click", () => call("pair"));
+for (const b of document.querySelectorAll('[data-action="pair"]')) b.addEventListener("click", () => call("pair"));
 $("cancel").addEventListener("click", () => call("cancel"));
 $("no").addEventListener("click", () => call("cancel"));
 $("yes").addEventListener("click", () => call("confirm", $("code").textContent));
