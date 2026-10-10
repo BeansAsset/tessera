@@ -12,13 +12,28 @@ half was welcomed as a friend. Tessera works the same way: your laptop keeps
 one half (a public key), your iPhone keeps the other (a passkey that only
 Face ID can use), and only a match opens the lock screen.
 
+![Tessera's window on the laptop, with one paired iPhone](media/window.png)
+
 ## Using it
 
-Run the **Tessera** shortcut on your iPhone: from the Home Screen, the Action
-Button, or a double tap on the back of the phone (Back Tap). Safari asks to
-use your passkey, Face ID checks it's you, and you tap **Open** to hand the
-answer back to Shortcuts. The laptop unlocks and shows a notification saying
-so.
+Run the **Tessera** shortcut on your iPhone. Safari asks to use your passkey,
+Face ID checks it's you, and you tap **Open** to hand the answer back to
+Shortcuts. The laptop unlocks and tells you so:
+
+![A notification on the laptop: Unlocked with Face ID, from iPhone](media/notification.png)
+
+### Unlock with a double tap on the back of your iPhone
+
+The quickest way to run the shortcut is **Back Tap**: tap the back of the
+phone twice, look at it, done.
+
+1. Open **Settings › Accessibility › Touch**.
+2. Scroll to the bottom and tap **Back Tap**, then **Double Tap**.
+3. Scroll down to **Shortcuts** and choose **Tessera**.
+
+It also works from the **Action Button** (Settings › Action Button ›
+Shortcut › Tessera) or as an icon on the Home Screen (in Shortcuts, touch
+and hold Tessera › Share › Add to Home Screen).
 
 ## Setting it up
 
@@ -41,6 +56,8 @@ exact command for your distro:
 
 Then open **Tessera** from your apps menu and press **Pair an iPhone**:
 
+![Pairing: a QR code to set up the shortcuts, and a countdown while it waits for the iPhone](media/pairing.png)
+
 1. Point your iPhone's camera at the QR code. It opens a page with the two
    shortcuts to make, **Tessera** and **Tessera Reply**, and Copy buttons for
    the addresses they need. This is only needed once.
@@ -48,6 +65,8 @@ Then open **Tessera** from your apps menu and press **Pair an iPhone**:
    confirm with Face ID and tap **Send to laptop**.
 3. Check that the four-digit code on the iPhone matches the one on the
    laptop, and press **They match**.
+
+![The laptop asks whether the iPhone shows the same four-digit code](media/code.png)
 
 The phone and the laptop need to be on the same Wi-Fi. The laptop is found by
 its name (`yourlaptop.local`), which most distros support out of the box
