@@ -88,7 +88,7 @@ as on a Mac with an Apple Watch.
 
 ## Works with
 
-Built and tested on Linux Mint 22 (Cinnamon); the iPhone side is tested with Safari on a current iPhone. Lock screens that follow
+Tested end to end on Linux Mint 22 (Cinnamon) with an iPhone: pairing, then unlocking the lock screen with Face ID. Lock screens that follow
 logind's unlock signal should work the same way: GNOME, KDE and others.
 Reports are welcome.
 

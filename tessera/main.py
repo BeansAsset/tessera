@@ -16,7 +16,7 @@ import time
 
 from .bridge import DEBUG, WebWindow  # sets up GTK and WebKit versions
 
-from gi.repository import Gio, GLib, Gtk  # noqa: E402
+from gi.repository import Gdk, Gio, GLib, Gtk  # noqa: E402
 
 from . import APP_ID, APP_NAME, PAGE, PORT, gate, server, session  # noqa: E402
 
@@ -168,6 +168,12 @@ class Application(Gtk.Application):
 
 
 def main():
+    # Name the windows after the app id, so the panel matches them to the
+    # menu entry and shows the app's icon instead of a generic one.
+    GLib.set_prgname(APP_ID)
+    Gdk.set_program_class(APP_ID)
+    if os.path.exists(ICON):
+        Gtk.Window.set_default_icon_from_file(ICON)
     return Application().run(sys.argv)
 
 

@@ -113,6 +113,9 @@ def write_files():
     os.makedirs(os.path.dirname(AUTOSTART_FILE), exist_ok=True)
     os.makedirs(os.path.dirname(ICON_FILE), exist_ok=True)
     shutil.copyfile(os.path.join(HERE, "data", APP_ID + ".svg"), ICON_FILE)
+    # Running desktops cache which icons exist; a newer timestamp on the
+    # theme folder makes them look again, so the icon shows up right away.
+    os.utime(os.path.dirname(os.path.dirname(os.path.dirname(ICON_FILE))))
     with open(APPS_FILE, "w") as f:
         f.write(f"""[Desktop Entry]
 Type=Application
@@ -120,6 +123,7 @@ Name={NAME}
 Comment=Unlock this laptop with Face ID on your iPhone
 Exec={COMMAND}
 Icon={APP_ID}
+StartupWMClass={APP_ID}
 Categories=Utility;
 Keywords=unlock;face;id;iphone;passkey;phone;lock;screen;
 StartupNotify=false
