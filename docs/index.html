@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>Tessera</title>
+  <style>
+    @font-face { font-family: "Inter"; src: url("InterVariable.woff2") format("woff2"); font-weight: 100 900; }
+    :root {
+      --bg: #101012; --card: #18181a; --raised: #222226; --hair: rgba(255, 255, 255, 0.10);
+      --text: #f4f2ef; --t2: rgba(244, 242, 239, 0.62); --sand: #d6b28c; --bad: #e5847a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); }
+    body {
+      font: 400 16px/1.5 Inter, -apple-system, sans-serif; -webkit-font-smoothing: antialiased;
+      min-height: 100vh; padding: max(28px, env(safe-area-inset-top)) 20px 40px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    main { width: 100%; max-width: 420px; }
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+    .sub { color: var(--t2); margin: 4px 0 28px; }
+    .step { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+    .step h2 { font-size: 15px; font-weight: 650; margin-bottom: 4px; }
+    .step p { color: var(--t2); font-size: 14px; margin-bottom: 14px; }
+    button {
+      font: inherit; font-size: 16px; font-weight: 650; width: 100%; height: 50px; border: 0; border-radius: 999px;
+      background: var(--text); color: #101012;
+    }
+    button.quiet { background: var(--raised); color: var(--text); }
+    button:disabled { opacity: 0.5; }
+    #log { margin-top: 18px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: var(--t2); white-space: pre-wrap; word-break: break-all; }
+    .ok { color: var(--sand); }
+    .bad { color: var(--bad); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Tessera</h1>
+  <p class="sub">Test page. Checks that Face ID passkeys work here and can hand their answer back to Shortcuts.</p>
+
+  <section class="step">
+    <h2>1. Create the test passkey</h2>
+    <p>Once only. It's saved in Passwords as "Tessera test".</p>
+    <button id="create">Create passkey</button>
+  </section>
+
+  <section class="step">
+    <h2>2. Sign with Face ID</h2>
+    <p>Signs a one-time code, the way unlocking will.</p>
+    <button id="sign" class="quiet">Sign with Face ID</button>
+  </section>
+
+  <div id="log"></div>
+</main>
+<script>
+"use strict";
+const RP = "beansasset.github.io";
+const logEl = document.getElementById("log");
+function log(text, cls) {
+  const line = document.createElement("div");
+  line.textContent = text;
+  if (cls) line.className = cls;
+  logEl.append(line);
+}
+const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const fromB64url = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+
+// The shortcut passes its one-time code and where to send the answer in the
+// address after #, e.g. #c=CODE&back=Tessera%20Back
+const params = new URLSearchParams(location.hash.slice(1));
+const fromShortcut = params.has("c");
+
+async function create() {
+  try {
+    const cred = await navigator.credentials.create({ publicKey: {
+      rp: { id: RP, name: "Tessera" },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "Tessera test", displayName: "Tessera test" },
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+      authenticatorSelection: { residentKey: "required", userVerification: "required" },
+      timeout: 60000,
+    }});
+    log("Passkey created.", "ok");
+    log("id " + b64url(cred.rawId).slice(0, 16) + "…");
+  } catch (e) {
+    log("Couldn't create it: " + e.name + " " + e.message, "bad");
+  }
+}
+
+async function sign(auto) {
+  const challenge = fromShortcut ? fromB64url(params.get("c")) : crypto.getRandomValues(new Uint8Array(32));
+  const started = performance.now();
+  try {
+    const cred = await navigator.credentials.get({ publicKey: {
+      rpId: RP, challenge, userVerification: "required", timeout: 60000,
+    }});
+    const flags = new Uint8Array(cred.response.authenticatorData)[32];
+    const verified = Boolean(flags & 0x04);
+    log(`Signed ${auto ? "automatically" : "after a tap"} in ${Math.round(performance.now() - started)} ms.`, "ok");
+    log(verified ? "Face ID (user verified): yes" : "Face ID (user verified): NO", verified ? "ok" : "bad");
+    if (fromShortcut) {
+      const answer = [cred.rawId, cred.response.authenticatorData, cred.response.clientDataJSON, cred.response.signature]
+        .map(b64url).join(".");
+      const back = params.get("back") || "Tessera Back";
+      log("Handing the answer back to Shortcuts…");
+      location.href = "shortcuts://run-shortcut?name=" + encodeURIComponent(back) +
+        "&input=text&text=" + encodeURIComponent(answer);
+    }
+  } catch (e) {
+    log(`${auto ? "Automatic" : "Tapped"} sign failed: ${e.name}`, "bad");
+    if (auto) log("Tap Sign with Face ID instead.");
+  }
+}
+
+document.getElementById("create").addEventListener("click", create);
+document.getElementById("sign").addEventListener("click", () => sign(false));
+
+if (!window.PublicKeyCredential) log("This browser doesn't support passkeys.", "bad");
+else if (fromShortcut) {
+  log("Opened by the shortcut, with a code.");
+  sign(true);   // does Safari allow Face ID without a tap? that's one of the questions
+}
+</script>
+</body>
+</html>
